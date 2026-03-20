@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        maven { url = "https://maven.minecraftforge.net" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.+'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'java'
+
+version = "1.0"
+group = "com.kektola70"
+
+archivesBaseName = "GoogleTvMod"
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+    maven { url = "https://maven.minecraftforge.net" }
+}
+
+dependencies {
+    // Forge for MC 1.16.5 (пример: 36.2.0). При необходимости поменяй на актуальную сборку.
+    minecraft "net.minecraftforge:forge:1.16.5-36.2.0"
+
+    // Для упрощённого "браузера" (парсинг HTML)
+    implementation "org.jsoup:jsoup:1.13.1"
+}
+
+minecraft {
+    mappings channel: "official", version: "1.16.5"
+    runs {
+        client {
+            workingDirectory project.file("run")
+        }
+        server {
+            workingDirectory project.file("run")
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+            "Specification-Title": "GoogleTvMod",
+            "Specification-Vendor": "kektola70",
+            "Specification-Version": "1",
+            "Implementation-Title": project.name,
+            "Implementation-Version": project.version
+        )
+    }
+}
