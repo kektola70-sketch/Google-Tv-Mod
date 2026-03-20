@@ -1,28 +1,46 @@
-package com.example.googletvmod.network;
+package com.kektola70.googletvmod.network;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.function.Supplier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.tileentity.TileEntity;
+import com.kektola70.googletvmod.tile.TileEntityScreen;
+import com.kektola70.googletvmod.GoogleTvMod;
+import net.minecraft.util.text.StringTextComponent;
 
 public class PacketKeyPress {
     private final String key;
-    private final int x, y, z;
+    private final BlockPos pos;
 
-    public PacketKeyPress(String key, int x, int y, int z) { this.key = key; this.x = x; this.y = y; this.z = z; }
+    public PacketKeyPress(String key, BlockPos pos) {
+        this.key = key;
+        this.pos = pos;
+    }
 
     public static void encode(PacketKeyPress pkt, PacketBuffer buf) {
         buf.writeString(pkt.key);
-        buf.writeInt(pkt.x); buf.writeInt(pkt.y); buf.writeInt(pkt.z);
+        buf.writeBlockPos(pkt.pos);
     }
 
     public static PacketKeyPress decode(PacketBuffer buf) {
-        return new PacketKeyPress(buf.readString(32767), buf.readInt(), buf.readInt(), buf.readInt());
+        String k = buf.readString(32767);
+        BlockPos p = buf.readBlockPos();
+        return new PacketKeyPress(k, p);
     }
 
     public static void handle(PacketKeyPress pkt, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            // Найти tile entity по координатам и применить key
-            // Server-side: применить изменения в TileEntityScreen
+            // Серверная обработка: найти TileEntityScreen и применить нажатие
+            net.minecraft.entity.player.ServerPlayerEntity sender = ctx.get().getSender();
+            if (sender == null) return;
+            TileEntity te = sender.getEntityWorld().getTileEntity(pkt.pos);
+            if (te instanceof TileEntityScreen) {
+                TileEntityScreen screen = (TileEntityScreen) te;
+                screen.appendText("[" + sender.getName().getString() + "]: " + pkt.key);
+                // TODO: послать обновление клиентам при необходимости
+                sender.sendStatusMessage(new StringTextComponent("Key sent to screen: " + pkt.key), false);
+            }
         });
         ctx.get().setPacketHandled(true);
     }
