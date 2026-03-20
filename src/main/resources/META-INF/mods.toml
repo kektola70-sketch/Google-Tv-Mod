@@ -1,1 +1,9 @@
-
+modLoader="javafml"
+loaderVersion="[36,)"
+license="MIT"
+[[mods]]
+modId="googletvmod"
+version="1.0"
+displayName="Google TV Mod (scaffold)"
+description='''Минимальный скелет мода Google TV Mod.
+Реализует ScreenBlock, Keyboard, Mouse и Laser (заглушки).'''
