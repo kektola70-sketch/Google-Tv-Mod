@@ -1,24 +1,26 @@
-package com.example.googletvmod.network;
+package com.kektola70.googletvmod.network;
 
+import com.kektola70.googletvmod.GoogleTvMod;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraft.network.PacketBuffer;
-import java.util.function.Supplier;
 
 public class NetworkHandler {
     private static final String PROTOCOL = "1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new net.minecraft.util.ResourceLocation("googletvmod", "main"),
-            () -> PROTOCOL, PROTOCOL::equals, PROTOCOL::equals);
+            new ResourceLocation(GoogleTvMod.MODID, "main"),
+            () -> PROTOCOL,
+            PROTOCOL::equals,
+            PROTOCOL::equals
+    );
 
     private static int id = 0;
-    private static int nextId() { return id++; }
+    private static int nextID() { return id++; }
 
     public static void register() {
-        CHANNEL.registerMessage(nextId(), PacketKeyPress.class,
+        CHANNEL.registerMessage(nextID(), PacketKeyPress.class,
                 PacketKeyPress::encode, PacketKeyPress::decode, PacketKeyPress::handle);
-        CHANNEL.registerMessage(nextId(), PacketMouseEvent.class,
-                PacketMouseEvent::encode, PacketMouseEvent::decode, PacketMouseEvent::handle);
+        // TODO: register mouse packet, screen update packet и т.д.
     }
 }
