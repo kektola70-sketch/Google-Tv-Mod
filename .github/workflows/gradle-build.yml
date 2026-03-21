@@ -40,6 +40,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Force Gradle wrapper version 7.3.3
+        run: |
+          if [ -f gradle/wrapper/gradle-wrapper.properties ]; then
+            sed -i 's|^distributionUrl=.*|distributionUrl=https\://services.gradle.org/distributions/gradle-7.3.3-bin.zip|' gradle/wrapper/gradle-wrapper.properties
+          fi
+
       - name: Ensure Gradle wrapper exists (download Gradle if missing)
         run: |
           set -e
@@ -47,17 +53,17 @@ jobs:
             echo "Gradle wrapper found."
             chmod +x ./gradlew
           else
-            echo "Gradle wrapper not found — downloading Gradle 6.8.3 and creating wrapper..."
+            echo "Gradle wrapper not found — downloading Gradle 7.3.3 and creating wrapper..."
             sudo apt-get update -y
             sudo apt-get install -y unzip curl
-            curl -sSLo gradle-6.8.3-bin.zip https://services.gradle.org/distributions/gradle-6.8.3-bin.zip
-            unzip -q gradle-6.8.3-bin.zip -d gradle
-            export PATH="$(pwd)/gradle/gradle-6.8.3/bin:$PATH"
-            gradle wrapper --gradle-version 6.8.3
+            curl -sSLo gradle-7.3.3-bin.zip https://services.gradle.org/distributions/gradle-7.3.3-bin.zip
+            unzip -q gradle-7.3.3-bin.zip -d gradle
+            export PATH="$(pwd)/gradle/gradle-7.3.3/bin:$PATH"
+            gradle wrapper --gradle-version 7.3.3
             chmod +x ./gradlew
           fi
 
-      - name: 'Debug: print gradle and env'
+      - name: Debug: print gradle and env
         run: |
           echo "=== which gradle ==="
           which gradle || true
