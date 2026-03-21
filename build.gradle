@@ -1,57 +1,55 @@
-buildscript {
-    repositories {
-        maven { url = "https://maven.minecraftforge.net" }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.+'
-    }
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'java'
+    id 'net.minecraftforge.gradle' version '4.1.+'
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'java'
+group = 'com.kektola70sketch'
+version = '1.0'
+base {
+    archivesName = 'Google-Tv-Mod'
+}
 
-version = "1.0"
-group = "com.kektola70"
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
-archivesBaseName = "GoogleTvMod"
+minecraft {
+    mappings channel: 'official', version: '1.16.5'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                google_tv_mod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                google_tv_mod {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
 
 repositories {
     mavenCentral()
-    maven { url = "https://maven.minecraftforge.net" }
+    maven { url = 'https://maven.minecraftforge.net' }
 }
 
 dependencies {
-    // Forge for MC 1.16.5 (пример: 36.2.0). При необходимости поменяй на актуальную сборку.
-    minecraft "net.minecraftforge:forge:1.16.5-36.2.0"
-
-    // Для упрощённого "браузера" (парсинг HTML)
-    implementation "org.jsoup:jsoup:1.13.1"
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.39'
 }
 
-minecraft {
-    mappings channel: "official", version: "1.16.5"
-    runs {
-        client {
-            workingDirectory project.file("run")
-        }
-        server {
-            workingDirectory project.file("run")
-        }
-    }
-}
-
-jar {
-    manifest {
-        attributes(
-            "Specification-Title": "GoogleTvMod",
-            "Specification-Vendor": "kektola70",
-            "Specification-Version": "1",
-            "Implementation-Title": project.name,
-            "Implementation-Version": project.version
-        )
-    }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
