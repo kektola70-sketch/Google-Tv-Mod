@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,17 +65,26 @@ jobs:
           ./gradlew --version || true
 
       - name: Build (Gradle) - run and save log
+        id: build
         run: |
           set -o pipefail
           mkdir -p build-logs
           ./gradlew clean build --no-daemon --stacktrace --info 2>&1 | tee build-logs/build.log
         continue-on-error: true
 
+      - name: Show last lines of build log
+        if: always()
+        run: |
+          echo "=== BUILD LOG TAIL ==="
+          tail -n 200 build-logs/build.log || true
+
       - name: Upload build log
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: gradle-build-log
           path: build-logs/build.log
+          if-no-files-found: ignore
 
       - name: Upload build artifact (jar) if exists
         if: always()
@@ -82,3 +92,8 @@ jobs:
         with:
           name: google-tv-mod-jar
           path: "build/libs/*.jar"
+          if-no-files-found: ignore
+
+      - name: Fail job if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
