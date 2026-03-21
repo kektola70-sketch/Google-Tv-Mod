@@ -77,7 +77,7 @@ jobs:
           path: build-logs/build.log
 
       - name: Upload build artifact (jar) if exists
-        if: success()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: google-tv-mod-jar
