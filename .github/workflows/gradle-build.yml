@@ -81,4 +81,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: google-tv-mod-jar
-          path: build/libs/*.jar
+          path: "build/libs/*.jar"
