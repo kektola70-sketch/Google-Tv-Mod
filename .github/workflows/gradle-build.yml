@@ -56,7 +56,7 @@ jobs:
             chmod +x ./gradlew
           fi
 
-      - name: Debug: print gradle and env
+      - name: 'Debug: print gradle and env'
         run: |
           echo "=== which gradle ==="
           which gradle || true
