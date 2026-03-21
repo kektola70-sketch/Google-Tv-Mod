@@ -1,4 +1,4 @@
-name: Build (Gradle)
+name: Build (Gradle) with diagnostics
 
 on:
   push:
@@ -11,6 +11,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Print environment / java
+        run: |
+          echo "=== java version ==="
+          java -version || true
+          echo "=== ls project root ==="
+          ls -la
+          echo "=== ls src ==="
+          ls -la src || true
 
       - name: Set up JDK 8 (Temurin)
         uses: actions/setup-java@v4
@@ -29,25 +38,44 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Ensure Gradle wrapper exists (create if missing)
+      - name: Ensure Gradle wrapper exists (download Gradle if missing)
         run: |
-          if [ ! -f ./gradlew ]; then
+          set -e
+          if [ -f ./gradlew ]; then
+            echo "Gradle wrapper found."
+            chmod +x ./gradlew
+          else
             echo "Gradle wrapper not found — downloading Gradle 6.8.3 and creating wrapper..."
-            sudo apt-get update
+            sudo apt-get update -y
             sudo apt-get install -y unzip curl
             curl -sSLo gradle-6.8.3-bin.zip https://services.gradle.org/distributions/gradle-6.8.3-bin.zip
             unzip -q gradle-6.8.3-bin.zip -d gradle
             export PATH="$(pwd)/gradle/gradle-6.8.3/bin:$PATH"
             gradle wrapper --gradle-version 6.8.3
-          else
-            echo "Gradle wrapper found."
+            chmod +x ./gradlew
           fi
-          chmod +x ./gradlew
 
-      - name: Build (Gradle)
-        run: ./gradlew clean build --no-daemon
+      - name: Debug: print gradle and env
+        run: |
+          echo "=== which gradle ==="
+          which gradle || true
+          echo "=== ./gradlew --version ==="
+          ./gradlew --version || true
 
-      - name: Upload build artifact (jar)
+      - name: Build (Gradle) - run and save log
+        run: |
+          set -o pipefail
+          mkdir -p build-logs
+          ./gradlew clean build --no-daemon --stacktrace --info 2>&1 | tee build-logs/build.log
+        continue-on-error: true
+
+      - name: Upload build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: build-logs/build.log
+
+      - name: Upload build artifact (jar) if exists
         if: success()
         uses: actions/upload-artifact@v4
         with:
